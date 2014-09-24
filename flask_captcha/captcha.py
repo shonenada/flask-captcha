@@ -1,4 +1,5 @@
 from .view import captcha_bp
+from flask import session
 
 
 CHARS = 'aabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
@@ -28,9 +29,16 @@ class Captcha(object):
 
         app.config.setdefault('CAPTCHA_CHARACTERS', CHARS)
         app.config.setdefault('CAPTCHA_CHARS_LENGTH', 4)
-        app.config.setdefault('CAPTCHA_FONTS', None)
+        app.config.setdefault('CAPTCHA_FONTS', [])
+        app.config.setdefault('CAPTCHA_CASE_SENSITIVE', False)
 
         self.register_blueprint()
+    
+    def validate(self, code):
+        if self.app.config['CAPTCHA_CASE_SENSITIVE']:
+            return code == session['captcha']
+        else:
+            return code.lower() == session['captcha'].lower()
 
     def register_blueprint(self):
         self.app.register_blueprint(captcha_bp)

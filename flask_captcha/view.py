@@ -4,7 +4,7 @@ try:
 except ImportError:
     from io import BytesIO as StringIO
 
-from flask import Blueprint, make_response, current_app
+from flask import Blueprint, make_response, current_app, session
 from wheezy.captcha.image import captcha
 from wheezy.captcha.image import background
 from wheezy.captcha.image import curve
@@ -22,14 +22,14 @@ captcha_bp = Blueprint('captcha', __name__)
 def sample_chars():
     characters = current_app.config['CAPTCHA_CHARACTERS']
     char_length = current_app.config['CAPTCHA_CHARS_LENGTH']
-    chars = random.sample(characters, char_length)
-    return chars
+    captcha_code = random.sample(characters, char_length)
+    return captcha_code
 
 
-@captcha_bp.route('/captcha')
+@captcha_bp.route('/captcha', endpoint="captcha")
 def captcha_view():
     out = StringIO()
-    capthca_image = captcha(drawings=[
+    captcha_image = captcha(drawings=[
         background(),
         text(fonts=current_app.config['CAPTCHA_FONTS'],
              drawings=[warp(), rotate(), offset()]),
@@ -37,8 +37,9 @@ def captcha_view():
         noise(),
         smooth(),
     ])
-    chars = sample_chars()
-    imgfile = capthca_image(''.join(chars))
+    captcha_code = ''.join(sample_chars())
+    imgfile = captcha_image(captcha_code)
+    session['captcha'] = captcha_code
     imgfile.save(out, 'PNG')
     out.seek(0)
     response = make_response(out.read())
