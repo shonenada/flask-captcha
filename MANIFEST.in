@@ -1,0 +1,5 @@
+include README.rst LICENSE
+recursive-include docs *.html *.css *.jpg *.png *.gif
+recursive-exclude docs *.pyc *.pyo
+recursive-exclude ./ *.pyc *.pyo
+prune docs/_build
