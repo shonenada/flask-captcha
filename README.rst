@@ -1,4 +1,4 @@
-flask-captcha
+Flask-Captcha
 =============
 
 Simple captcha for Flask
